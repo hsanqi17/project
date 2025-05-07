@@ -11,10 +11,13 @@ function mousePressed() { // needed to get it to work in full screen mode
 var mode = 0;
 let mainloop; 
 let Beat1,Beat2,Synth1
-let popcatgif, popcatpause;
 let playing = [false, false, false];
 let volumeSliders = [];
- 
+let nyanCatImg; 
+let nyanX = 0; nyanY = 0; nyanSpeed = 2;
+let rainbowCats = [];
+let fft, amp, prevAmp = 0;
+let sounds = {};
 
 function preload() {
   mainloop = loadSound('loop.mp3');
@@ -28,6 +31,7 @@ function preload() {
   catpause2 = createImg('cat21.gif');
   catgif3 = createImg('cat3.jpg');
   catpause3 = createImg('cat31.png');
+  nyanCatImg = loadImage('rainbowcat.png');
   
   popcatgif.hide();
   popcatpause.hide();
@@ -40,6 +44,10 @@ function preload() {
 function setup() {
   createCanvas(windowWidth, windowHeight);
   splash = new Splash();
+  
+  fft = new p5.FFT();
+  amp = new p5.Amplitude();
+  amp.setInput();
   
   mainloop.setLoop(true);
   mainloop.play();
@@ -90,7 +98,37 @@ function draw() {
   if (mode == 1) {
     splash.hide();
   
-  background(255);
+    background(255);
+    
+  let level = amp.getLevel();
+  if (level > 0.2 && prevAmp <= 0.2) {
+    let count = floor(map(level, 0.2, 0.6, 1, 5, true));
+    for (let i = 0; i < count; i++) {
+      rainbowCats.push(createRainbowCat());
+    }
+  }
+  prevAmp = level;
+  
+    for (let i = rainbowCats.length - 1; i >= 0; i--) {
+    let cat = rainbowCats[i];
+    cat.x += cat.speed;
+    image(nyanCatImg, cat.x, cat.y, 100 * cat.scale, 50 * cat.scale);
+    if (cat.x > width + 100) rainbowCats.splice(i, 1);
+  }
+    
+  let spectrum = fft.analyze(); 
+  let energy = fft.getEnergy("bass"); 
+  nyanY = map(energy, 0, 255, height / 2, height / 4);
+  nyanX += map(energy, 0, 255, 1, 10); 
+
+  if (nyanX > width) {
+  nyanX = -200; 
+  }
+
+  image(nyanCatImg, nyanX, nyanY, 200, 100);   
+    
+    
+  
   textSize(24);
   fill(0);
   textAlign(CENTER);
@@ -127,14 +165,28 @@ function triggerSound(index) {
       catpause2.show();
     }
   } else if (index === 2) {
-  if (playing[index]) {
-    Synth1.loop();
-    catpause3.hide();
-    catgif3.show();
-  } else {
-    Synth1.stop();
-    catgif3.hide();
-    catpause3.show();
+    if (playing[index]) {
+      Synth1.loop();
+      catpause3.hide();
+      catgif3.show();
+    } else {
+      Synth1.stop();
+      catgif3.hide();
+      catpause3.show();
+    }
+
+    for (let i = 0; i < 3; i++) {
+  rainbowCats.push(createRainbowCat());
+}
   }
 }
+
+
+function createRainbowCat() {
+  return {
+    x: -100,
+    y: random(height / 4, height / 2),
+    speed: random(2, 6),
+    scale: random(0.5, 1)
+  };
 }
