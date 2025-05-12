@@ -100,47 +100,54 @@ function draw() {
   
     background(255);
     
-  let level = amp.getLevel();
-  if (level > 0.2 && prevAmp <= 0.2) {
-    let count = floor(map(level, 0.2, 0.6, 1, 5, true));
+    let level = amp.getLevel();
+    let spectrum = fft.analyze(); 
+    let energy = fft.getEnergy("bass");
+
+    
+if ((level > 0.15 && prevAmp <= 0.15) || energy > 200) {
+  if (rainbowCats.length < 15) {
+    let count = floor(map(level + energy / 255, 0.3, 1, 1, 3, true));
     for (let i = 0; i < count; i++) {
       rainbowCats.push(createRainbowCat());
     }
   }
-  prevAmp = level;
-  
-    for (let i = rainbowCats.length - 1; i >= 0; i--) {
-    let cat = rainbowCats[i];
-    cat.x += cat.speed;
-    image(nyanCatImg, cat.x, cat.y, 100 * cat.scale, 50 * cat.scale);
-    if (cat.x > width + 100) rainbowCats.splice(i, 1);
-  }
-    
-  let spectrum = fft.analyze(); 
-  let energy = fft.getEnergy("bass"); 
-  nyanY = map(energy, 0, 255, height / 2, height / 4);
-  nyanX += map(energy, 0, 255, 1, 10); 
+}
 
-  if (nyanX > width) {
-  nyanX = -200; 
-  }
+    
+  for (let i = rainbowCats.length - 1; i >= 0; i--) {
+  let cat = rainbowCats[i];
 
-  image(nyanCatImg, nyanX, nyanY, 200, 100);   
-    
-    
   
-  textSize(24);
-  fill(0);
-  textAlign(CENTER);
-  text('Click a cat to toggle its sound!', 0, -height / 2 + 40);
-  
-  Beat1.setVolume(volumeSliders[0].value());
-  Beat2.setVolume(volumeSliders[1].value());
-  Synth1.setVolume(volumeSliders[2].value());
-  
+  let spacing = i * 30;
+  cat.x += map(energy, 0, 255, 1, 6); 
+  cat.y = height / 2 + sin(frameCount * 0.1 + spacing) * 30 + level * 40; 
+  image(nyanCatImg, cat.x, cat.y, 100 * cat.scale, 50 * cat.scale);
+
+  if (cat.x > width + 100) {
+    rainbowCats.splice(i, 1);
   }
 }
 
+    
+    nyanY = map(energy, 0, 255, height / 2, height / 4);
+    nyanX += map(energy, 0, 255, 1, 10); 
+    if (nyanX > width) nyanX = -200;
+    image(nyanCatImg, nyanX, nyanY, 200, 100);   
+
+    
+    textSize(24);
+    fill(0);
+    textAlign(CENTER);
+    text('Click a cat to make sound!', width / 2, 40);
+
+   
+    Beat1.setVolume(volumeSliders[0].value());
+    Beat2.setVolume(volumeSliders[1].value());
+    Synth1.setVolume(volumeSliders[2].value());
+  }
+}   
+  
 function triggerSound(index) {
   playing[index] = !playing[index];
 
