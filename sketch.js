@@ -139,7 +139,7 @@ if ((level > 0.15 && prevAmp <= 0.15) || energy > 200) {
     textSize(24);
     fill(0);
     textAlign(CENTER);
-    text('Click a cat to make sound!', width / 2, 40);
+    text("Click a cat to make sound!", width / 2, 40);
 
    
     Beat1.setVolume(volumeSliders[0].value());
