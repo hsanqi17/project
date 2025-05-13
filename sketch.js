@@ -18,6 +18,7 @@ let nyanX = 0; nyanY = 0; nyanSpeed = 2;
 let rainbowCats = [];
 let fft, amp, prevAmp = 0;
 let sounds = {};
+var prevMode = 0;
 
 function preload() {
   mainloop = loadSound('loop.mp3');
@@ -60,7 +61,7 @@ function setup() {
   popcatpause.position(displayWidth / 4 - 100, yPos);
   popcatpause.size(200, 200);
   popcatpause.mousePressed(() => triggerSound(0));
-  popcatpause.show();
+  // popcatpause.show(); // don't show cats here
 
   catgif2.position(displayWidth / 2 - 100, yPos);
   catgif2.size(200, 200);
@@ -68,7 +69,7 @@ function setup() {
   catpause2.position(displayWidth / 2 - 100, yPos);
   catpause2.size(200, 200);
   catpause2.mousePressed(() => triggerSound(1));
-  catpause2.show();
+  // catpause2.show();
 
   catgif3.position((3 * displayWidth / 4) - 100, yPos);
   catgif3.size(200, 200);
@@ -76,7 +77,7 @@ function setup() {
   catpause3.position((3 * displayWidth / 4) - 100, yPos);
   catpause3.size(200, 200);
   catpause3.mousePressed(() => triggerSound(2));
-  catpause3.show();
+  // catpause3.show();
   
   
   let xOffset = displayWidth / 4 - 50; 
@@ -85,6 +86,7 @@ function setup() {
 for (let i = 0; i < 3; i++) {
   let slider = createSlider(0, 1, 0.5, 0.01);
   slider.position(xOffset + i * (displayWidth / 4), ySlider);
+  slider.hide(); // we need to hide the sliders here so we can show them later
   volumeSliders.push(slider);
   }
   
@@ -95,10 +97,30 @@ function draw() {
     mode = 1;
   }
   
+  
+  
+
+  
   if (mode == 1) {
-    splash.hide();
+    
+    console.log(prevMode)
+  if (prevMode == 0){
+      popcatpause.show();
+      catpause2.show();
+      catpause3.show();
+      prevMode = 1;
+      splash.hide();
+  }
+    
+    
   
     background(255);
+    
+  for (let i = 0; i < 3; i++) {
+
+  volumeSliders[i].show() // show sliders here
+  }
+    
     
     let level = amp.getLevel();
     let spectrum = fft.analyze(); 
